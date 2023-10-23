@@ -251,6 +251,8 @@ maingui.childguis(3) = ChildGuiClass('StimEditGUI');
 maingui.childguis(4) = ChildGuiClass('PlotProbeGUI');
 maingui.childguis(5) = ChildGuiClass('PvaluesDisplayGUI');
 maingui.childguis(6) = ChildGuiClass('configSettingsGUI');
+maingui.childguis(6) = ChildGuiClass('QTNIRSGUI');
+
 
 % Load date files into group tree object
 maingui.dataTree = LoadDataTree(maingui.groupDirs, maingui.format, procStreamFile);
@@ -877,6 +879,34 @@ switch(length(varargin))
 end
 
 
+% --------------------------------------------------------------------
+function LaunchQTNIRSFromMenu(guiname, h, varargin)
+global maingui
+
+if strcmp(maingui.dataTree.currElem.type,'run')==1
+    qualityThld = 0.5;
+    sciThld = 0.7;
+    pspThld = 0.08;
+    Fminmax = [0.5 2.5];
+    wLength = 5;
+    % QTNIRS evaluating: "all": only the conditions | "resting": the whole timeseries
+    condMask = 'resting';
+    guiFlag = 1;
+    qtMats = qtnirs([maingui.dataTree.currElem.path,maingui.dataTree.currElem.name],...
+        'freqCut',Fminmax,...
+        'window',wLength,...
+        'sciThreshold',sciThld,...
+        'pspThreshold',pspThld,...
+        'qualityThreshold',qualityThld,...
+        'conditionsMask',condMask,...
+        'guiFlag',guiFlag);
+else
+    fprintf('Please, select a run file.\n');
+end
+
+
+
+
 
 % --------------------------------------------------------------------
 function menuItemPlotProbeGUI_Callback(hObject, ~, handles)
@@ -937,6 +967,10 @@ LaunchChildGuiFromMenu('StimEditGUI', hObject);
 function [eventdata, handles] = menuItemProcStreamEditGUI_Callback(hObject, eventdata, handles)
 LaunchChildGuiFromMenu('ProcStreamEditGUI', hObject);
 
+
+% --------------------------------------------------------------------
+function [eventdata, handles] = menuItemQTNIRSGUI_Callback(hObject, eventdata, handles)
+LaunchQTNIRSFromMenu('QTNIRSGUI', hObject);
 
 
 % --------------------------------------------------------------------
@@ -1919,6 +1953,8 @@ if n_channels > 0
     iSrcDet = maingui.axesSDG.iSrcDet;
     colors = maingui.axesSDG.SDPairColors;
     d = maingui.dataTree.currElem.GetDataTimeSeries();
+    dc = maingui.dataTree.currElem.GetDc;
+    d(:,iCh) = squeeze(dc(:,1,iCh));
     t = maingui.dataTree.currElem.GetTime();
     if isempty(t)
         msgbox('Power Spectrum Plot Tool unavailable for subject and group class');
@@ -1943,6 +1979,7 @@ if n_channels > 0
         plot(f, 10*log10(pxx), 'Color', colors(i,:));
         title([num2str(iSrcDet(i,1)), ' \rightarrow ', num2str(iSrcDet(i,2))]);
         xlim([0,fs/2]);
+        %xlim([0,1.7]);
         xlabel(sprintf('Frequency (Hz)'));
         ylabel(sprintf('PSD (dB)\n'));
     end
@@ -2185,6 +2222,8 @@ if n_channels > 0
     iSrcDet = maingui.axesSDG.iSrcDet;
     colors = maingui.axesSDG.SDPairColors;
     d = maingui.dataTree.currElem.GetDataTimeSeries();
+    dc = maingui.dataTree.currElem.GetDc;
+    d(:,iCh) = squeeze(dc(:,1,iCh));
     t = maingui.dataTree.currElem.GetTime();
     if isempty(t)
         msgbox('Power Spectrum Plot Tool unavailable for subject and group class');
