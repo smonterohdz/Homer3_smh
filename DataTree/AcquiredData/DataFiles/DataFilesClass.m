@@ -586,7 +586,7 @@ classdef DataFilesClass < handle
 
         % ----------------------------------------------------------
         function InitLookupTable(obj)
-            width = 4;
+            width = 5;
             if isempty(obj.lookupTable)
                 obj.lookupTable = int32(zeros((10^width)-1, 1));
             else
