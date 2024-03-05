@@ -55,6 +55,8 @@ dtLong  = 3;    % seconds
 ml = SD.MeasList;
 mlAct = SD.MeasListAct; % prune bad channels
 
+mlAct = [mlAct; mlAct]; % hardcoded fix to include two wavelengths
+
 lstAct = find(mlAct==1);
 dodSpline = dod;
 t = t(:);  % needs to be a column vector
@@ -227,5 +229,3 @@ for ii = 1:length(lstAct)
      %   dodSpline(:,i_ch) = dod;
     end
 end
-
-
